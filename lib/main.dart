@@ -1,3 +1,4 @@
+import 'package:bytebank_app/pages/home.dart';
 import 'package:bytebank_app/pages/investiments.dart';
 import 'package:bytebank_app/pages/others_services.dart';
 import 'package:bytebank_app/pages/transfers.dart';
@@ -51,6 +52,10 @@ class _MyHomePageState extends State<MyHomePage> {
         unselectedItemColor: Colors.brown.shade50,
         items: [
           BottomNavigationBarItem(
+            icon: Icon(Icons.house),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.wallet),
             label: 'Investiments',
           ),
@@ -65,9 +70,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: switch (selectedIndex) {
-        0 => Investiments(),
-        1 => Transfers(),
-        2 => OthersServices(),
+        0 => Home(),
+        1 => Investiments(),
+        2 => Transfers(),
+        3 => OthersServices(),
         _ => Center(child: Text("Page not found")),
       },
     );
