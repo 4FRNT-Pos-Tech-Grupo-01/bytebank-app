@@ -22,7 +22,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_native_splash: ^2.4.7
+  lottie: ^3.3.2
+  animated_splash_screen: ^1.3.0
 
 dev_dependencies:
   flutter_test:
@@ -46,7 +47,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - images/
+    - assets/images/
+    - assets/animation/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -78,17 +80,16 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+# flutter_native_splash:
+#   android: true
+#   ios: true
+#   web: false
 
-flutter_native_splash:
-  android: true
-  ios: true
-  web: false
+#   color: "#000000"
+#   image: "images/splashscreen.png"
+#   branding: "images/brand.png"
 
-  color: "#000000"
-  image: "images/splashscreen.png"
-  branding: "images/brand.png"
-
-  android_12:
-    color: "#000000"
-    image: "images/splashscreen.png"
-    branding: "images/brand.png"
+#   android_12:
+#     color: "#000000"
+#     image: "images/splashscreen.png"
+#     branding: "images/brand.png"
