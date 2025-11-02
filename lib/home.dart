@@ -20,7 +20,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Image.asset('assets/images/logo.png', height: 40),
+        title: Image.asset('assets/images/logo.png', height: 24),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.login),
+            color: const Color.fromARGB(195, 41, 202, 27),
+            alignment: Alignment.center,
+            onPressed: () {
+              // login action
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
