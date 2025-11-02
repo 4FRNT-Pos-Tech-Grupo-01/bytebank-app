@@ -9,14 +9,102 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<MyHomePage> {
+  bool _isLoggedIn = false;
   var selectedIndex = 0;
+
+  // Controllers for login form
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  // Fake credentials for demonstration
+  final String _validUsername = 'user';
+  final String _validPassword = '1234';
+
+  // Login function
+  void _login() {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
+    if (username == _validUsername && password == _validPassword) {
+      setState(() {
+        _isLoggedIn = true;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid username or password')),
+      );
+    }
+  }
+
+  // Logout function
+  void _logout() {
+    setState(() {
+      _isLoggedIn = false;
+      _usernameController.clear();
+      _passwordController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_isLoggedIn ? 'Welcome Home' : 'Login Page'),
+      ),
+      body: Center(
+        child: _isLoggedIn ? _buildHomeView() : _buildLoginForm(),
+      ),
+    );
+  }
+
+  /// Login form widget
+  Widget _buildLoginForm() {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'Login to Continue',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _usernameController,
+            decoration: const InputDecoration(
+              labelText: 'Username',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _passwordController,
+            decoration: const InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+            ),
+            obscureText: true,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _login,
+            icon: const Icon(Icons.login),
+            label: const Text('Login'),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Logged-in view widget
+  Widget _buildHomeView() {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -26,9 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.login),
             color: const Color.fromARGB(195, 41, 202, 27),
             alignment: Alignment.center,
-            onPressed: () {
-              // login action
-            },
+            onPressed: _logout,
           ),
         ],
       ),
@@ -68,3 +154,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
