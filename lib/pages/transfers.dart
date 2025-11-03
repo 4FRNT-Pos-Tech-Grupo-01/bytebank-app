@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:bytebank_app/constants/transfer.dart';
+import 'package:flutter/services.dart';
 
 const containerBackgroundColor = '#CBCBCB';
 const titleFontColor = '#DEE9EA';
 const buttonBackgroundColor = '#004D61';
 const buttonFontColor = '#FFFFFF';
-const transferOptions = ['Depósito', 'Transferência'];
+const regexForAmount = r'^\d*[\.,]?\d{0,2}$';
 
 class Transfers extends StatefulWidget {
   final String? initialTransactionType;
@@ -25,8 +27,15 @@ class _TransfersState extends State<Transfers> {
   late TextEditingController amountController;
 
   void handleTransaction() {
-    print('transaction type: $selectedTransactionType');
-    print('amount: ${amountController.text}');
+    bool validTransaction =
+        selectedTransactionType != null && amountController.text.isNotEmpty;
+
+    if (validTransaction) {
+      print('transaction type: $selectedTransactionType');
+      print('amount: ${amountController.text}');
+    } else {
+      print('Invalid transaction data');
+    }
   }
 
   @override
@@ -106,6 +115,9 @@ class _TransfersState extends State<Transfers> {
               child: TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(regexForAmount)),
+                ],
                 decoration: InputDecoration(
                   hintText: '00,00',
                   hintStyle: TextStyle(color: Colors.grey),
@@ -166,7 +178,6 @@ class _TransfersState extends State<Transfers> {
 
   @override
   void dispose() {
-    // Only dispose if we created the controller
     if (widget.amountController == null) {
       amountController.dispose();
     }
