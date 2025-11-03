@@ -7,15 +7,22 @@ const buttonFontColor = '#FFFFFF';
 const transferOptions = ['Depósito', 'Transferência'];
 
 class Transfers extends StatefulWidget {
-  const Transfers({super.key});
+  final String? initialTransactionType;
+  final TextEditingController? amountController;
+
+  const Transfers({
+    super.key,
+    this.initialTransactionType,
+    this.amountController,
+  });
 
   @override
   State<Transfers> createState() => _TransfersState();
 }
 
 class _TransfersState extends State<Transfers> {
-  String? selectedTransactionType;
-  final TextEditingController amountController = TextEditingController();
+  late String? selectedTransactionType;
+  late TextEditingController amountController;
 
   void handleTransaction() {
     print('transaction type: $selectedTransactionType');
@@ -23,9 +30,22 @@ class _TransfersState extends State<Transfers> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    selectedTransactionType = widget.initialTransactionType;
+    amountController = widget.amountController ?? TextEditingController();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color(int.parse('0xFF${containerBackgroundColor.substring(1)}')),
+      decoration: BoxDecoration(
+        color: Color(int.parse('0xFF${containerBackgroundColor.substring(1)}')),
+        image: const DecorationImage(
+          image: AssetImage('images/transaction-background.png'),
+          fit: BoxFit.fitHeight,
+        ),
+      ),
       padding: const EdgeInsets.only(top: 32.0, left: 32.0, right: 32.0),
       child: Center(
         child: Column(
@@ -67,7 +87,7 @@ class _TransfersState extends State<Transfers> {
                       child: Text(value),
                     );
                   }).toList(),
-                  dropdownColor: Colors.white, // background of dropdown menu
+                  dropdownColor: Colors.white,
                 ),
               ),
             ),
@@ -113,10 +133,6 @@ class _TransfersState extends State<Transfers> {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: handleTransaction,
-              child: const Text(
-                'Concluir\ntransação',
-                textAlign: TextAlign.center,
-              ),
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -136,9 +152,12 @@ class _TransfersState extends State<Transfers> {
                   fontWeight: FontWeight.w200,
                 ),
               ),
+              child: const Text(
+                'Concluir\ntransação',
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 32),
-            Image.asset('images/transfer-woman.png', width: 280, height: 180),
           ],
         ),
       ),
@@ -147,7 +166,10 @@ class _TransfersState extends State<Transfers> {
 
   @override
   void dispose() {
-    amountController.dispose();
+    // Only dispose if we created the controller
+    if (widget.amountController == null) {
+      amountController.dispose();
+    }
     super.dispose();
   }
 }
