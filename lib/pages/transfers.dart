@@ -51,7 +51,7 @@ class _TransfersState extends State<Transfers> {
       decoration: BoxDecoration(
         color: Color(int.parse('0xFF${containerBackgroundColor.substring(1)}')),
         image: const DecorationImage(
-          image: AssetImage('images/transaction-background.png'),
+          image: AssetImage('assets/images/transaction-background.png'),
           fit: BoxFit.fitHeight,
         ),
       ),
