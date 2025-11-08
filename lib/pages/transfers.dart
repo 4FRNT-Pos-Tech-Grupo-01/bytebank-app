@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:bytebank_app/constants/transfer.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:bytebank_app/constants/transfer.dart';
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 const containerBackgroundColor = '#CBCBCB';
 const titleFontColor = '#DEE9EA';
@@ -26,6 +30,9 @@ class _TransfersState extends State<Transfers> {
   final _formKey = GlobalKey<FormState>();
   late String? selectedTransactionType;
   late TextEditingController amountController;
+  File? selectedFile;
+  Uint8List? selectedFileBytes;
+  String? selectedFileName;
 
   @override
   void initState() {
@@ -56,13 +63,48 @@ class _TransfersState extends State<Transfers> {
     return null;
   }
 
+  Future<void> _pickAttachment() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        withData: kIsWeb,
+      );
+
+      if (result != null) {
+        final file = result.files.single;
+
+        setState(() {
+          if (kIsWeb) {
+            selectedFileName = file.name;
+            selectedFileBytes = file.bytes;
+          } else {
+            selectedFile = File(file.path!);
+            selectedFileName = file.name;
+          }
+        });
+      }
+    } on PlatformException catch (e) {
+      debugPrint('FilePicker error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao selecionar arquivo: ${e.message}')),
+      );
+    } catch (e) {
+      debugPrint('Unexpected error: $e');
+    }
+  }
+
   void handleTransaction() {
     if (_formKey.currentState!.validate()) {
+      print('transaction type: $selectedTransactionType');
+      print('amount: ${amountController.text}');
+      if (selectedFile != null) {
+        print('attachment: ${selectedFile!.path}');
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Transação enviada com sucesso!')),
       );
-      print('transaction type: $selectedTransactionType');
-      print('amount: ${amountController.text}');
     }
   }
 
@@ -150,6 +192,59 @@ class _TransfersState extends State<Transfers> {
                       ),
                     ),
                     validator: _validateAmount,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Anexo (opcional)',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(
+                            int.parse('0xFF${titleFontColor.substring(1)}'),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(
+                        onPressed: _pickAttachment,
+                        icon: const Icon(Icons.attach_file),
+                        label: const Text('Selecionar arquivo'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(
+                              color: Color(
+                                int.parse(
+                                  '0xFF${buttonBackgroundColor.substring(1)}',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (selectedFileName != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Arquivo: $selectedFileName',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 const SizedBox(height: 32),
