@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bytebank_app/constants/transfer.dart';
 import 'package:flutter/services.dart';
@@ -26,15 +27,40 @@ class _TransfersState extends State<Transfers> {
   late String? selectedTransactionType;
   late TextEditingController amountController;
 
-  void handleTransaction() {
-    bool validTransaction =
-        selectedTransactionType != null && amountController.text.isNotEmpty;
+  Future<void> handleTransaction() async {
+    try {
+      final amountText = amountController.text.replaceAll(',', '.');
+      final amount = double.tryParse(amountText);
 
-    if (validTransaction) {
-      print('transaction type: $selectedTransactionType');
-      print('amount: ${amountController.text}');
-    } else {
-      print('Invalid transaction data');
+      if (selectedTransactionType == null || amount == null || amount <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Por favor, selecione um tipo de transação e insira um valor válido.',
+            ),
+          ),
+        );
+        return;
+      }
+
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      await firestore.collection('transactions').add({
+        'type': selectedTransactionType == "Transferência"
+            ? 'transfer'
+            : 'deposit',
+        'amount': amount,
+        'date': FieldValue.serverTimestamp(),
+      });
+      // Process the transaction
+      print('Transaction type: $selectedTransactionType');
+      print('Amount: $amount');
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ocorreu um erro ao processar a transação.'),
+        ),
+      );
     }
   }
 

@@ -1,10 +1,19 @@
 import 'package:bytebank_app/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  // Inicializa Firebase apenas se ainda não estiver inicializado
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print("🔥 Firebase inicializado com sucesso!");
+  }
+
   runApp(const MyApp());
 }
 

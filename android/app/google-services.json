@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "797385471626",
-    "project_id": "bytebank-app-f79fb",
-    "storage_bucket": "bytebank-app-f79fb.firebasestorage.app"
+    "project_number": "884410934565",
+    "project_id": "bytebank-app-90ef0",
+    "storage_bucket": "bytebank-app-90ef0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:797385471626:android:866d3b9998ad63bb829f73",
+        "mobilesdk_app_id": "1:884410934565:android:d72ca8bf15fa5abde7a6cc",
         "android_client_info": {
           "package_name": "com.example.bytebank_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAlS6is-PcXt4Syx5EurzSEwAGEDGrpglY"
+          "current_key": "AIzaSyAX5XQEgGfyXfNTtHx6iLjWVzotxx0n6ys"
         }
       ],
       "services": {
