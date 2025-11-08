@@ -48,6 +48,7 @@ class _TransfersState extends State<Transfers> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: double.infinity,
       decoration: BoxDecoration(
         color: Color(int.parse('0xFF${containerBackgroundColor.substring(1)}')),
         image: const DecorationImage(
