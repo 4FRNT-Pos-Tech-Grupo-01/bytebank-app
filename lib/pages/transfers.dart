@@ -23,26 +23,47 @@ class Transfers extends StatefulWidget {
 }
 
 class _TransfersState extends State<Transfers> {
+  final _formKey = GlobalKey<FormState>();
   late String? selectedTransactionType;
   late TextEditingController amountController;
-
-  void handleTransaction() {
-    bool validTransaction =
-        selectedTransactionType != null && amountController.text.isNotEmpty;
-
-    if (validTransaction) {
-      print('transaction type: $selectedTransactionType');
-      print('amount: ${amountController.text}');
-    } else {
-      print('Invalid transaction data');
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     selectedTransactionType = widget.initialTransactionType;
     amountController = widget.amountController ?? TextEditingController();
+  }
+
+  String? _validateTransactionType(String? type) {
+    if (type == null || !transferOptions.contains(type)) {
+      return 'Selecione um tipo de transação válido';
+    }
+    return null;
+  }
+
+  String? _validateAmount(String? amountText) {
+    if (amountText == null || amountText.trim().isEmpty) {
+      return 'Informe um valor';
+    }
+
+    final cleanedAmount = amountText.replaceAll(',', '.').trim();
+    final amount = double.tryParse(cleanedAmount);
+
+    if (amount == null || amount <= 0) {
+      return 'Digite um valor positivo';
+    }
+
+    return null;
+  }
+
+  void handleTransaction() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Transação enviada com sucesso!')),
+      );
+      print('transaction type: $selectedTransactionType');
+      print('amount: ${amountController.text}');
+    }
   }
 
   @override
@@ -59,124 +80,108 @@ class _TransfersState extends State<Transfers> {
       padding: const EdgeInsets.only(top: 32.0, left: 32.0, right: 32.0),
       child: SingleChildScrollView(
         child: Center(
-          child: Column(
-            children: [
-              Text(
-                'Nova Transação',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(int.parse('0xFF${titleFontColor.substring(1)}')),
-                ),
-              ),
-              const SizedBox(height: 32),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Text(
+                  'Nova Transação',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                     color: Color(
-                      int.parse('0xFF${buttonBackgroundColor.substring(1)}'),
+                      int.parse('0xFF${titleFontColor.substring(1)}'),
                     ),
                   ),
-                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedTransactionType,
-                    hint: const Text('Selecione o tipo de transação'),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedTransactionType = newValue!;
-                      });
-                    },
-                    items: transferOptions.map<DropdownMenuItem<String>>((
-                      String value,
-                    ) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    dropdownColor: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                'Valor',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(int.parse('0xFF${titleFontColor.substring(1)}')),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: 200,
-                child: TextField(
-                  controller: amountController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(regexForAmount)),
-                  ],
+                const SizedBox(height: 32),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedTransactionType,
                   decoration: InputDecoration(
-                    hintText: '00,00',
-                    hintStyle: TextStyle(color: Colors.grey),
                     filled: true,
                     fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Color(
-                          int.parse(
-                            '0xFF${buttonBackgroundColor.substring(1)}',
-                          ),
-                        ),
-                        width: 1,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Color(
-                          int.parse(
-                            '0xFF${buttonBackgroundColor.substring(1)}',
-                          ),
-                        ),
-                        width: 1,
-                      ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  hint: const Text('Selecione o tipo de transação'),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedTransactionType = newValue!;
+                    });
+                  },
+                  validator: _validateTransactionType,
+                  items: transferOptions.map<DropdownMenuItem<String>>((
+                    String value,
+                  ) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 ),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: handleTransaction,
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                  backgroundColor: Color(
-                    int.parse('0xFF${buttonBackgroundColor.substring(1)}'),
-                  ),
-                  foregroundColor: Color(
-                    int.parse('0xFF${buttonFontColor.substring(1)}'),
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w200,
+                const SizedBox(height: 32),
+                Text(
+                  'Valor',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(
+                      int.parse('0xFF${titleFontColor.substring(1)}'),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Concluir\ntransação',
-                  textAlign: TextAlign.center,
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: 200,
+                  child: TextFormField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(regexForAmount)),
+                    ],
+                    decoration: InputDecoration(
+                      hintText: '00,00',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    validator: _validateAmount,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-            ],
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: handleTransaction,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    backgroundColor: Color(
+                      int.parse('0xFF${buttonBackgroundColor.substring(1)}'),
+                    ),
+                    foregroundColor: Color(
+                      int.parse('0xFF${buttonFontColor.substring(1)}'),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w200,
+                    ),
+                  ),
+                  child: const Text(
+                    'Concluir\ntransação',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
