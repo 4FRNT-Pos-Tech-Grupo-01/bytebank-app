@@ -39,7 +39,7 @@ class _HomePageState extends State<MyHomePage> {
       );
     }
   }
-
+  
   // Logout function
   void _logout() {
     setState(() {
@@ -52,12 +52,16 @@ class _HomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isLoggedIn ? 'Welcome Home' : 'Login Page'),
-      ),
-      body: Center(
-        child: _isLoggedIn ? _buildHomeView() : _buildLoginForm(),
-      ),
+      appBar: !_isLoggedIn
+          ? AppBar(
+              title: Image.asset('assets/images/logo.png', height: 24),
+            )
+          : null,
+      body: _isLoggedIn
+          ? _buildHomeView()
+          : Center(
+              child: _buildLoginForm(),
+            ),
     );
   }
 
@@ -69,8 +73,8 @@ class _HomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'Login to Continue',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            'Login to continue',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           TextField(
@@ -78,7 +82,15 @@ class _HomePageState extends State<MyHomePage> {
             decoration: const InputDecoration(
               labelText: 'Username',
               border: OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color.fromARGB(195, 41, 202, 27)),
+              ),
+              floatingLabelStyle: TextStyle(
+                color: Color.fromARGB(195, 41, 202, 27),
+                fontWeight: FontWeight.w600,
+              ),
             ),
+            cursorColor: Color.fromARGB(195, 41, 202, 27)
           ),
           const SizedBox(height: 16),
           TextField(
@@ -86,16 +98,31 @@ class _HomePageState extends State<MyHomePage> {
             decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color.fromARGB(195, 41, 202, 27)),
+              ),
+              floatingLabelStyle: TextStyle(
+                color: Color.fromARGB(195, 41, 202, 27),
+              ),
             ),
             obscureText: true,
+            cursorColor: Color.fromARGB(195, 41, 202, 27)
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: _login,
             icon: const Icon(Icons.login),
-            label: const Text('Login'),
+            label: Text('Login'),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
+              backgroundColor: Color.fromARGB(195, 41, 202, 27),
+              foregroundColor: Colors.white,
+              iconColor: Color.fromARGB(255, 255, 255, 255),
+              textStyle: const TextStyle(
+                color:  Color.fromARGB(255, 255, 255, 255),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              )
             ),
           ),
         ],
