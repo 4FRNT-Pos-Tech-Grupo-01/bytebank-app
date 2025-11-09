@@ -6,12 +6,10 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializa Firebase apenas se ainda não estiver inicializado
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print("🔥 Firebase inicializado com sucesso!");
   }
 
   runApp(const MyApp());
