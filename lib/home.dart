@@ -32,27 +32,15 @@ class _HomePageState extends State<MyHomePage> {
     final password = _passwordController.text;
 
     try {
-      final isValidCredentials =
-          username == _validUsername && password == _validPassword;
-
-      if (!isValidCredentials) {
-        _showSnackBar(context, 'Invalid username or password');
-        return;
-      }
-
-      await Auth().createUserWithEmailAndPassword(
+      await Auth().signInWithEmailAndPassword(
         email: username,
         password: password,
       );
-
       setState(() => _isLoggedIn = true);
     } on FirebaseAuthException catch (e) {
       String message;
 
       switch (e.code) {
-        case 'email-already-in-use':
-          message = 'This email is already registered.';
-          break;
         case 'invalid-email':
           message = 'Please enter a valid email address.';
           break;
@@ -69,30 +57,30 @@ class _HomePageState extends State<MyHomePage> {
   }
 
   // Create Account function
-  Future<void> _createUserWithEmailAndPassword() async {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  // Future<void> _createUserWithEmailAndPassword() async {
+  //   final username = _usernameController.text;
+  //   final password = _passwordController.text;
 
-    try {
-      if (username == _validUsername && password == _validPassword) {
-        await Auth().createUserWithEmailAndPassword(
-          email: username,
-          password: password,
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid username or password')),
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid username or password')),
-      );
-      setState(() {
-        _isLoggedIn = false;
-      });
-    }
-  }
+  //   try {
+  //     if (username == _validUsername && password == _validPassword) {
+  //       await Auth().createUserWithEmailAndPassword(
+  //         email: username,
+  //         password: password,
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Invalid username or password')),
+  //       );
+  //     }
+  //   } on FirebaseAuthException catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Invalid username or password')),
+  //     );
+  //     setState(() {
+  //       _isLoggedIn = false;
+  //     });
+  //   }
+  // }
 
   // Logout function
   Future<void> _logout() async {
