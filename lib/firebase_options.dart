@@ -40,13 +40,23 @@ class DefaultFirebaseOptions {
     }
   }
 
+  // static const FirebaseOptions web = FirebaseOptions(
+  //   apiKey: 'AIzaSyAQ8eh68yztGdSj5dLvY1Zjxt3NASShNb4',
+  //   appId: '1:797385471626:web:7364d5e9ce3daf55829f73',
+  //   messagingSenderId: '797385471626',
+  //   projectId: 'bytebank-app-f79fb',
+  //   authDomain: 'bytebank-app-f79fb.firebaseapp.com',
+  //   storageBucket: 'bytebank-app-f79fb.firebasestorage.app',
+  // );
+
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAQ8eh68yztGdSj5dLvY1Zjxt3NASShNb4',
-    appId: '1:797385471626:web:7364d5e9ce3daf55829f73',
-    messagingSenderId: '797385471626',
-    projectId: 'bytebank-app-f79fb',
-    authDomain: 'bytebank-app-f79fb.firebaseapp.com',
-    storageBucket: 'bytebank-app-f79fb.firebasestorage.app',
+    apiKey: "AIzaSyC5XT6yaEz6HxYkHsw0Fk7JIrAOnUBHS_Y",
+    authDomain: "bytebank-app-90ef0.firebaseapp.com",
+    projectId: "bytebank-app-90ef0",
+    storageBucket: "bytebank-app-90ef0.firebasestorage.app",
+    messagingSenderId: "884410934565",
+    appId: "1:884410934565:web:1a357e18695284dfe7a6cc",
+    measurementId: "G-TNM2RZNVG4",
   );
 
   static const FirebaseOptions android = FirebaseOptions(
