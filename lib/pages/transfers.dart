@@ -5,11 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:bytebank_app/constants/transfer.dart';
+import 'package:bytebank_app/app_colors.dart';
 
-const containerBackgroundColor = '#CBCBCB';
-const titleFontColor = '#DEE9EA';
-const buttonBackgroundColor = '#004D61';
-const buttonFontColor = '#FFFFFF';
 const regexForAmount = r'^\d*[\.,]?\d{0,2}$';
 
 class Transfers extends StatefulWidget {
@@ -143,7 +140,7 @@ class _TransfersState extends State<Transfers> {
     return Container(
       height: double.infinity,
       decoration: BoxDecoration(
-        color: Color(int.parse('0xFF${containerBackgroundColor.substring(1)}')),
+        color: TransferScreenColors.containerBackground,
         image: const DecorationImage(
           image: AssetImage('assets/images/transaction-background.png'),
           fit: BoxFit.fitHeight,
@@ -161,9 +158,7 @@ class _TransfersState extends State<Transfers> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(
-                      int.parse('0xFF${titleFontColor.substring(1)}'),
-                    ),
+                    color: TransferScreenColors.titleFont,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -190,9 +185,7 @@ class _TransfersState extends State<Transfers> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(
-                      int.parse('0xFF${titleFontColor.substring(1)}'),
-                    ),
+                    color: TransferScreenColors.titleFont,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -224,9 +217,7 @@ class _TransfersState extends State<Transfers> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(
-                          int.parse('0xFF${titleFontColor.substring(1)}'),
-                        ),
+                        color: TransferScreenColors.titleFont,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -244,11 +235,7 @@ class _TransfersState extends State<Transfers> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                           side: BorderSide(
-                            color: Color(
-                              int.parse(
-                                '0xFF${buttonBackgroundColor.substring(1)}',
-                              ),
-                            ),
+                            color: TransferScreenColors.buttonBackground,
                           ),
                         ),
                       ),
@@ -276,12 +263,8 @@ class _TransfersState extends State<Transfers> {
                       horizontal: 32,
                       vertical: 16,
                     ),
-                    backgroundColor: Color(
-                      int.parse('0xFF${buttonBackgroundColor.substring(1)}'),
-                    ),
-                    foregroundColor: Color(
-                      int.parse('0xFF${buttonFontColor.substring(1)}'),
-                    ),
+                    backgroundColor: TransferScreenColors.buttonBackground,
+                    foregroundColor: TransferScreenColors.buttonFont,
                     textStyle: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w200,
