@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:bytebank_app/pages/home.dart';
 import 'package:bytebank_app/pages/investiments.dart';
 import 'package:bytebank_app/pages/others_services.dart';
-import 'package:bytebank_app/pages/transfers.dart';
+import 'package:bytebank_app/pages/bank_statement.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -228,7 +228,7 @@ class _HomePageState extends State<MyHomePage> {
       body: switch (selectedIndex) {
         0 => Home(),
         1 => Investiments(),
-        2 => Transfers(),
+        2 => BankStatement(),
         3 => OthersServices(),
         _ => Center(child: Text("Page not found")),
       },

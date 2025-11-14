@@ -1,3 +1,5 @@
-const deposit = 'Depósito';
-const transfer = 'Transferência';
-const transferOptions = [deposit, transfer];
+enum TransactionType { deposit, transfer }
+
+const depositToDisplay = 'Depósito';
+const transferToDisplay = 'Transferência';
+const transferOptions = [depositToDisplay, transferToDisplay];
