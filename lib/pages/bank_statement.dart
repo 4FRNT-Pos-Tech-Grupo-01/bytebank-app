@@ -1,9 +1,8 @@
+import 'package:bytebank_app/app_colors.dart';
 import 'package:bytebank_app/constants/transfer.dart';
+import 'package:bytebank_app/models/transfer.dart';
 import 'package:bytebank_app/pages/transfers.dart';
 import 'package:flutter/material.dart';
-
-const background = Color(0xFFF4F4F4);
-const green = Color(0xFF47A138);
 
 class BankStatement extends StatelessWidget {
   BankStatement({super.key});
@@ -18,7 +17,7 @@ class BankStatement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: background,
+      backgroundColor: TransferScreenColors.statementBackground,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -32,26 +31,18 @@ class BankStatement extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TransactionTile(transaction: transaction),
+            Column(
+              children: [
+                TransactionTile(transaction: transaction),
+                TransactionTile(transaction: transaction),
+                TransactionTile(transaction: transaction),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
-}
-
-class TransactionModel {
-  final String month;
-  final String date;
-  final String value;
-  final TransactionType type;
-
-  TransactionModel({
-    required this.month,
-    required this.date,
-    required this.value,
-    required this.type,
-  });
 }
 
 class TransactionTile extends StatelessWidget {
@@ -66,7 +57,12 @@ class TransactionTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: green, width: 1.0)),
+          border: Border(
+            bottom: BorderSide(
+              color: TransferScreenColors.statementGreen,
+              width: 1.0,
+            ),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +72,7 @@ class TransactionTile extends StatelessWidget {
                 Text(
                   transaction.month,
                   style: const TextStyle(
-                    color: green,
+                    color: TransferScreenColors.statementGreen,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
