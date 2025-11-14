@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bytebank_app/validators/transfer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:bytebank_app/constants/transfer.dart';
 import 'package:bytebank_app/app_colors.dart';
-
-const regexForAmount = r'^\d*[\.,]?\d{0,2}$';
 
 class Transfers extends StatefulWidget {
   final String? initialTransactionType;
@@ -35,22 +34,6 @@ class _TransfersState extends State<Transfers> {
     super.initState();
     selectedTransactionType = widget.initialTransactionType;
     amountController = widget.amountController ?? TextEditingController();
-  }
-
-  String? _validateTransactionType(String? type) {
-    if (type == null || !transferOptions.contains(type)) {
-      return 'Selecione um tipo de transação válido';
-    }
-    return null;
-  }
-
-  String? _validateAmount(String? amountText) {
-    if (amountText == null || amountText.trim().isEmpty)
-      return 'Informe um valor';
-    final cleanedAmount = amountText.replaceAll(',', '.').trim();
-    final amount = double.tryParse(cleanedAmount);
-    if (amount == null || amount <= 0) return 'Digite um valor positivo';
-    return null;
   }
 
   Future<void> _pickAttachment() async {
@@ -107,7 +90,9 @@ class _TransfersState extends State<Transfers> {
     final localFilePath = await _saveFileLocally();
 
     await FirebaseFirestore.instance.collection('transactions').add({
-      'type': selectedTransactionType == "Transferência"
+      'type':
+          (selectedTransactionType == TransactionType.transfer ||
+              selectedTransactionType == transferToDisplay)
           ? 'transfer'
           : 'deposit',
       'amount': amount,
@@ -137,146 +122,150 @@ class _TransfersState extends State<Transfers> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: TransferScreenColors.containerBackground,
-        image: const DecorationImage(
-          image: AssetImage('assets/images/transaction-background.png'),
-          fit: BoxFit.fitHeight,
+    return Material(
+      child: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(
+          color: TransferScreenColors.containerBackground,
+          image: const DecorationImage(
+            image: AssetImage('assets/images/transaction-background.png'),
+            fit: BoxFit.fitHeight,
+          ),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 32.0),
-      child: SingleChildScrollView(
-        child: Center(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Text(
-                  'Nova Transação',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: TransferScreenColors.titleFont,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                DropdownButtonFormField<String>(
-                  value: selectedTransactionType,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 32.0),
+        child: SingleChildScrollView(
+          child: Center(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Text(
+                    'Nova Transação',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: TransferScreenColors.titleFont,
                     ),
                   ),
-                  hint: const Text('Selecione o tipo de transação'),
-                  onChanged: (value) =>
-                      setState(() => selectedTransactionType = value),
-                  validator: _validateTransactionType,
-                  items: transferOptions
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'Valor',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: TransferScreenColors.titleFont,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 200,
-                  child: TextFormField(
-                    controller: amountController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(regexForAmount)),
-                    ],
+                  const SizedBox(height: 32),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedTransactionType,
                     decoration: InputDecoration(
-                      hintText: '00,00',
-                      hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    validator: _validateAmount,
+                    hint: const Text('Selecione o tipo de transação'),
+                    onChanged: (value) =>
+                        setState(() => selectedTransactionType = value),
+                    validator: validateTransactionType,
+                    items: transferOptions
+                        .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                        .toList(),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Column(
-                  children: [
-                    Text(
-                      'Anexo (opcional)',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: TransferScreenColors.titleFont,
-                      ),
+                  const SizedBox(height: 32),
+                  Text(
+                    'Valor',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: TransferScreenColors.titleFont,
                     ),
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      onPressed: _pickAttachment,
-                      icon: const Icon(Icons.attach_file),
-                      label: const Text('Selecionar arquivo'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: 200,
+                    child: TextFormField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(regexForAmount),
                         ),
-                        shape: RoundedRectangleBorder(
+                      ],
+                      decoration: InputDecoration(
+                        hintText: '00,00',
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(
-                            color: TransferScreenColors.buttonBackground,
+                        ),
+                      ),
+                      validator: validateAmount,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Column(
+                    children: [
+                      Text(
+                        'Anexo (opcional)',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: TransferScreenColors.titleFont,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(
+                        onPressed: _pickAttachment,
+                        icon: const Icon(Icons.attach_file),
+                        label: const Text('Selecionar arquivo'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(
+                              color: TransferScreenColors.buttonBackground,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    if (selectedFileName != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        'Arquivo: $selectedFileName',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
+                      if (selectedFileName != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Arquivo: $selectedFileName',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: handleTransaction,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: handleTransaction,
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      backgroundColor: TransferScreenColors.buttonBackground,
+                      foregroundColor: TransferScreenColors.buttonFont,
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w200,
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    backgroundColor: TransferScreenColors.buttonBackground,
-                    foregroundColor: TransferScreenColors.buttonFont,
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w200,
+                    child: const Text(
+                      'Concluir\ntransação',
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  child: const Text(
-                    'Concluir\ntransação',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 32),
-              ],
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
         ),
