@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-class OthersServices extends StatelessWidget {
+class MyAccount extends StatelessWidget {
   final VoidCallback? onBack;
 
-  const OthersServices({super.key, this.onBack});
+  const MyAccount({super.key, this.onBack});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configurações'),
+        title: const Text('Minha Conta'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: const Center(
-        child: Text("Página de Configurações"),
+        child: Text('Página de Minha Conta'),
       ),
     );
   }
