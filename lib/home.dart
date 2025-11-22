@@ -226,7 +226,7 @@ class _HomePageState extends State<MyHomePage> {
         ],
       ),
       body: switch (selectedIndex) {
-        0 => Home(),
+        0 => Home(accountBalance: 5000.00, currentLoggedUsername: "Felipe",),
         1 => Investiments(),
         2 => BankStatement(),
         3 => OthersServices(),
