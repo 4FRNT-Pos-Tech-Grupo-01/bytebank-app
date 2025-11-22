@@ -1,34 +1,57 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class Home extends StatefulWidget {
-  final String currentLoggedUsername;
-  final double accountBalance;
 
   const Home({
     super.key,
-    required this.currentLoggedUsername,
-    required this.accountBalance,
   });
 
   @override
-  State<Home> createState() => _WelcomeCardState();
+  State<Home> createState() => _DashboardHero();
 }
 
-class _WelcomeCardState extends State<Home> {
+class _DashboardHero extends State<Home> {
   bool _initialized = false;
   bool hideBalance = false;
+  late Future<double> accountBalance;
 
   @override
   void initState() {
     super.initState();
     _loadLocale();
+    accountBalance = fetchBalance();
   }
 
   Future<void> _loadLocale() async {
     await initializeDateFormatting('pt_BR', null);
     setState(() => _initialized = true);
+  }
+
+  Future<double> fetchBalance() async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('transactions').get();
+    return calculateBalance(snapshot);
+  }
+
+  double calculateBalance(QuerySnapshot snapshot) {
+    double total = 0.0;
+
+    for (final doc in snapshot.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final amount = (data['amount'] ?? 0).toDouble();
+      final type = (data['type'] ?? '').toString().toLowerCase();
+
+      if (type == 'deposit') {
+        total += amount;
+      } else if (type == 'transfer') {
+        total -= amount;
+      }
+    }
+
+    return total;
   }
 
   @override
@@ -39,8 +62,13 @@ class _WelcomeCardState extends State<Home> {
       );
     }
 
-    final date = DateFormat("EEEE, dd/MM/yyyy", "pt_BR").format(DateTime.now());
-    final String formattedBalance = "R\$ ${widget.accountBalance.toStringAsFixed(2).replaceAll('.', ',')}";
+    final String currentLoggedUsername = "Felipe";
+    final date = DateFormat("EEEE, dd/MM/yyyy", "pt_BR")
+        .format(DateTime.now())
+        .replaceFirstMapped(
+          RegExp(r'^\w'),
+          (m) => m[0]!.toUpperCase(),
+        );
 
     return Container(
       width: double.infinity,
@@ -55,19 +83,20 @@ class _WelcomeCardState extends State<Home> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Olá, ${widget.currentLoggedUsername}! :)",
+            "Olá, $currentLoggedUsername! :)",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.w600,
             ),
           ),
+
           const SizedBox(height: 4),
           Text(
             date,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 12,
+              fontSize: 14,
             ),
           ),
 
@@ -93,7 +122,7 @@ class _WelcomeCardState extends State<Home> {
                       ? Icons.visibility_off_outlined
                       : Icons.remove_red_eye_outlined,
                   color: Colors.white.withValues(alpha: 0.8),
-                  size: 20,
+                  size: 24,
                 ),
               ),
             ],
@@ -116,20 +145,40 @@ class _WelcomeCardState extends State<Home> {
           ),
 
           const SizedBox(height: 8),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 0),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(opacity: animation, child: child);
+
+          FutureBuilder<double>(
+            future: accountBalance,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Text(
+                  "R\$ ...",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }
+
+              final balance = snapshot.data!;
+              final formattedBalance = "R\$ ${balance.toStringAsFixed(2)}";
+
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 0),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                child: Text(
+                  hideBalance ? "R\$ ••••••••••" : formattedBalance,
+                  key: ValueKey(hideBalance),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
             },
-            child: Text(
-              hideBalance ? "R\$ ••••••••••" : formattedBalance,
-              key: ValueKey(hideBalance),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
           ),
 
           const SizedBox(height: 32),
