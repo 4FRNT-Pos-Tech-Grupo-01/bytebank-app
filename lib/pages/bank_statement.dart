@@ -103,7 +103,34 @@ class TransactionTile extends StatelessWidget {
                     const SizedBox(width: 16),
                     InkWell(
                       onTap: () {
-                        print("Del tapped");
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Confirmar exclusão'),
+                              content: const Text(
+                                'Tem certeza que deseja deletar esta transação?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Cancelar'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    print(
+                                      'Transação a deletar: ${transaction.value}, ${transaction.date}, ${transaction.month}, ${transaction.type}',
+                                    );
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Deletar'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                       child: const Icon(
                         Icons.delete,
