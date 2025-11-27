@@ -4,39 +4,109 @@ import 'package:bytebank_app/models/transfer.dart';
 import 'package:bytebank_app/pages/transfers.dart';
 import 'package:flutter/material.dart';
 
-class BankStatement extends StatelessWidget {
-  BankStatement({super.key});
+class BankStatement extends StatefulWidget {
+  const BankStatement({super.key});
 
-  final transaction = TransactionModel(
-    month: "Dezembro",
-    date: "05/12/2025",
-    value: "R\$ 4.000,00",
-    type: TransactionType.deposit,
-  );
+  @override
+  State<BankStatement> createState() => _BankStatementState();
+}
+
+class _BankStatementState extends State<BankStatement> {
+  final List<TransactionModel> transactions = [];
+  final ScrollController _scrollController = ScrollController();
+
+  bool _isLoading = false;
+  int _page = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTransactions();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_isLoading) {
+        _fetchTransactions();
+      }
+    });
+  }
+
+  Future<void> _fetchTransactions() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    final newData = List.generate(10, (index) {
+      return TransactionModel(
+        month: "Mês $_page",
+        date: "01/01/2025",
+        value: "R\$ ${(index + (_page * 10)) * 100},00",
+        type: TransactionType.deposit,
+      );
+    });
+
+    setState(() {
+      transactions.addAll(newData);
+      _page++;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: TransferScreenColors.statementBackground,
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Extrato',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Column(
+            Row(
               children: [
-                TransactionTile(transaction: transaction),
-                TransactionTile(transaction: transaction),
-                TransactionTile(transaction: transaction),
+                const Text(
+                  'Extrato',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Transfers(),
+                      ),
+                    );
+                  },
+                  child: const Icon(Icons.add, size: 32, color: Colors.green),
+                ),
               ],
+            ),
+            const SizedBox(height: 16),
+
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: transactions.length + (_isLoading ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == transactions.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  return TransactionTile(transaction: transactions[index]);
+                },
+              ),
             ),
           ],
         ),
