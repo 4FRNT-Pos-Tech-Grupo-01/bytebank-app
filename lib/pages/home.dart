@@ -307,7 +307,7 @@ class _Finantials extends State<Home> {
           Container(
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
             decoration: BoxDecoration(
               color: Colors.white,
             ),
