@@ -3,7 +3,7 @@ import 'package:bytebank_app/constants/transfer.dart';
 class TransactionModel {
   final String month;
   final String date;
-  final String value;
+  final double value;
   final TransactionType type;
 
   TransactionModel({
