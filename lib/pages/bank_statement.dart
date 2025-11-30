@@ -2,6 +2,7 @@ import 'package:bytebank_app/app_colors.dart';
 import 'package:bytebank_app/constants/transfer.dart';
 import 'package:bytebank_app/models/transfer.dart';
 import 'package:bytebank_app/pages/transfers.dart';
+import 'package:bytebank_app/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 
 class BankStatement extends StatefulWidget {
@@ -14,6 +15,7 @@ class BankStatement extends StatefulWidget {
 class _BankStatementState extends State<BankStatement> {
   final List<TransactionModel> transactions = [];
   final ScrollController _scrollController = ScrollController();
+  final TransactionService _service = TransactionService();
 
   bool _isLoading = false;
   int _page = 1;
@@ -37,16 +39,7 @@ class _BankStatementState extends State<BankStatement> {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-
-    final newData = List.generate(10, (index) {
-      return TransactionModel(
-        month: "Mês $_page",
-        date: "01/01/2025",
-        value: "R\$ ${(index + (_page * 10)) * 100},00",
-        type: TransactionType.deposit,
-      );
-    });
+    final newData = await _service.fetchTransactions(_page);
 
     setState(() {
       transactions.addAll(newData);
@@ -120,6 +113,10 @@ class TransactionTile extends StatelessWidget {
 
   const TransactionTile({super.key, required this.transaction});
 
+  String get transactionValueToDisplay {
+    return 'R\$ ${transaction.value.toStringAsFixed(2)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -158,7 +155,7 @@ class TransactionTile extends StatelessWidget {
                             builder: (context) => Transfers(
                               initialTransactionType: depositToDisplay,
                               amountController: TextEditingController(
-                                text: transaction.value.replaceAll("R\$ ", ""),
+                                text: transaction.value.toString(),
                               ),
                             ),
                           ),
@@ -230,7 +227,7 @@ class TransactionTile extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              transaction.value,
+              transactionValueToDisplay,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 16,

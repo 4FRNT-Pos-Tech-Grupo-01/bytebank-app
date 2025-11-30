@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'package:bytebank_app/validators/transfer.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:bytebank_app/constants/transfer.dart';
 import 'package:bytebank_app/app_colors.dart';
+import 'package:bytebank_app/services/transaction_service.dart';
 
 class Transfers extends StatefulWidget {
   final String? initialTransactionType;
@@ -28,6 +27,7 @@ class _TransfersState extends State<Transfers> {
   late TextEditingController amountController;
   File? selectedFile;
   String? selectedFileName;
+  final TransactionService _service = TransactionService();
 
   @override
   void initState() {
@@ -61,25 +61,6 @@ class _TransfersState extends State<Transfers> {
     }
   }
 
-  Future<String?> _saveFileLocally() async {
-    try {
-      if (selectedFile == null) return null;
-
-      final directory = await getApplicationDocumentsDirectory();
-      final fileName =
-          selectedFileName ??
-          'attachment_${DateTime.now().millisecondsSinceEpoch}';
-      final filePath = '${directory.path}/$fileName';
-
-      final savedFile = await selectedFile!.copy(filePath);
-      print('Arquivo salvo localmente: ${savedFile.path}');
-      return savedFile.path;
-    } catch (e) {
-      debugPrint('Erro ao salvar arquivo localmente: $e');
-      return null;
-    }
-  }
-
   Future<void> handleTransaction() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -87,18 +68,18 @@ class _TransfersState extends State<Transfers> {
     final amount = double.tryParse(amountText);
     if (amount == null || selectedTransactionType == null) return;
 
-    final localFilePath = await _saveFileLocally();
+    final type =
+        (selectedTransactionType == TransactionType.transfer ||
+            selectedTransactionType == transferToDisplay)
+        ? 'transfer'
+        : 'deposit';
 
-    await FirebaseFirestore.instance.collection('transactions').add({
-      'type':
-          (selectedTransactionType == TransactionType.transfer ||
-              selectedTransactionType == transferToDisplay)
-          ? 'transfer'
-          : 'deposit',
-      'amount': amount,
-      'date': FieldValue.serverTimestamp(),
-      'attachmentPath': localFilePath,
-    });
+    await _service.createTransaction(
+      type: type,
+      amount: amount,
+      attachment: selectedFile,
+      attachmentName: selectedFileName,
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Transação concluída com sucesso!')),
