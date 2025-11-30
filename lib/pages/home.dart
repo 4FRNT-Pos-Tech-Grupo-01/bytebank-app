@@ -8,10 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class Home extends StatefulWidget {
-
-  const Home({
-    super.key,
-  });
+  const Home({super.key});
 
   @override
   State<Home> createState() => _Finantials();
@@ -33,8 +30,9 @@ class _Finantials extends State<Home> {
   }
 
   Future<Map<String, double>> fetchChartData() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('transactions').get();
+    final snapshot = await FirebaseFirestore.instance
+        .collection('transactions')
+        .get();
 
     double deposits = 0;
     double transfers = 0;
@@ -51,10 +49,7 @@ class _Finantials extends State<Home> {
       }
     }
 
-    return {
-      "Depósitos": deposits,
-      "Transferências": transfers.abs(),
-    };
+    return {"Depósitos": deposits, "Transferências": transfers.abs()};
   }
 
   Future<void> _loadLocale() async {
@@ -63,19 +58,40 @@ class _Finantials extends State<Home> {
   }
 
   Future<double> fetchBalance() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('transactions').get();
+    final snapshot = await FirebaseFirestore.instance
+        .collection('transactions')
+        .get();
     return calculateBalance(snapshot);
   }
 
   Future<String> _loadUserData() async {
-    User? user = FirebaseAuth.instance.currentUser;
-
+    final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception("Nenhum usuário logado");
     }
 
-    return user.email ?? '';
+    final uid = user.uid;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+      final data = doc.data();
+      final userNameFromFirestore = data != null && data['userName'] != null
+          ? (data['userName'] as String).trim()
+          : '';
+
+      if (userNameFromFirestore.isNotEmpty) {
+        return userNameFromFirestore;
+      }
+
+      // fallback para email se não houver userName no Firestore
+      return user.email ?? 'Usuário';
+    } catch (_) {
+      // Em caso de erro, retorna email ou um rótulo genérico
+      return user.email ?? 'Usuário';
+    }
   }
 
   double calculateBalance(QuerySnapshot snapshot) {
@@ -137,11 +153,7 @@ class _Finantials extends State<Home> {
                 sectionsSpace: 0,
                 centerSpaceRadius: 60,
                 sections: sections
-                    .map(
-                      (e) => e.copyWith(
-                        value: e.value * value,
-                      ),
-                    )
+                    .map((e) => e.copyWith(value: e.value * value))
                     .toList(),
               ),
             ),
@@ -154,17 +166,12 @@ class _Finantials extends State<Home> {
   @override
   Widget build(BuildContext context) {
     if (!_initialized) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     final date = DateFormat("EEEE, dd/MM/yyyy", "pt_BR")
         .format(DateTime.now())
-        .replaceFirstMapped(
-          RegExp(r'^\w'),
-          (m) => m[0]!.toUpperCase(),
-        );
+        .replaceFirstMapped(RegExp(r'^\w'), (m) => m[0]!.toUpperCase());
 
     return SingleChildScrollView(
       child: Column(
@@ -172,7 +179,10 @@ class _Finantials extends State<Home> {
           Container(
             width: double.infinity,
             height: 600.0,
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 16.0,
+            ),
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
             decoration: BoxDecoration(
               color: const Color(0xFF014A58),
@@ -187,7 +197,6 @@ class _Finantials extends State<Home> {
                     if (!snapshot.hasData) {
                       return Text("Loading...");
                     }
-
                     return Text(
                       "Olá, ${snapshot.data}! :)",
                       style: const TextStyle(
@@ -198,7 +207,6 @@ class _Finantials extends State<Home> {
                     );
                   },
                 ),
-                
 
                 const SizedBox(height: 4),
                 Text(
@@ -247,10 +255,7 @@ class _Finantials extends State<Home> {
                 const SizedBox(height: 16),
                 const Text(
                   "Conta Corrente",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
 
                 const SizedBox(height: 8),
@@ -270,7 +275,8 @@ class _Finantials extends State<Home> {
                     }
 
                     final balance = snapshot.data!;
-                    final formattedBalance = "R\$ ${balance.toStringAsFixed(2)}";
+                    final formattedBalance =
+                        "R\$ ${balance.toStringAsFixed(2)}";
 
                     return AnimatedSwitcher(
                       duration: const Duration(milliseconds: 0),
@@ -308,9 +314,7 @@ class _Finantials extends State<Home> {
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
             padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-            ),
+            decoration: BoxDecoration(color: Colors.white),
             child: FutureBuilder<Map<String, double>>(
               future: chartData,
               builder: (context, snapshot) {
@@ -337,7 +341,7 @@ class _Finantials extends State<Home> {
             ),
           ),
         ],
-      )
+      ),
     );
   }
 }

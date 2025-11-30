@@ -1,4 +1,5 @@
 import 'package:bytebank_app/firebase_auth.dart';
+import 'package:bytebank_app/pages/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -21,10 +22,6 @@ class _HomePageState extends State<MyHomePage> {
   // Controllers for login form
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  // Fake credentials for demonstration
-  final String _validUsername = 'user';
-  final String _validPassword = '1234';
 
   // Login function
   Future<void> _login() async {
@@ -55,32 +52,6 @@ class _HomePageState extends State<MyHomePage> {
       setState(() => _isLoggedIn = false);
     }
   }
-
-  // Create Account function
-  // Future<void> _createUserWithEmailAndPassword() async {
-  //   final username = _usernameController.text;
-  //   final password = _passwordController.text;
-
-  //   try {
-  //     if (username == _validUsername && password == _validPassword) {
-  //       await Auth().createUserWithEmailAndPassword(
-  //         email: username,
-  //         password: password,
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Invalid username or password')),
-  //       );
-  //     }
-  //   } on FirebaseAuthException catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Invalid username or password')),
-  //     );
-  //     setState(() {
-  //       _isLoggedIn = false;
-  //     });
-  //   }
-  // }
 
   // Logout function
   Future<void> _logout() async {
@@ -127,14 +98,14 @@ class _HomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'Login to continue',
+            'Faça login para continuar',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           TextField(
             controller: _usernameController,
             decoration: const InputDecoration(
-              labelText: 'Username',
+              labelText: 'Email',
               border: OutlineInputBorder(),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Color.fromARGB(195, 41, 202, 27)),
@@ -150,7 +121,7 @@ class _HomePageState extends State<MyHomePage> {
           TextField(
             controller: _passwordController,
             decoration: const InputDecoration(
-              labelText: 'Password',
+              labelText: 'Senha',
               border: OutlineInputBorder(),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Color.fromARGB(195, 41, 202, 27)),
@@ -178,6 +149,20 @@ class _HomePageState extends State<MyHomePage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ),
+          const SizedBox(height: 24),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const Register()),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: const Color.fromARGB(195, 41, 202, 27),
+              minimumSize: const Size(double.infinity, 48),
+            ),
+            child: const Text('Registre-se', style: TextStyle(fontSize: 16)),
           ),
         ],
       ),
@@ -210,18 +195,18 @@ class _HomePageState extends State<MyHomePage> {
         selectedItemColor: const Color.fromARGB(195, 41, 202, 27),
         unselectedItemColor: Colors.brown.shade50,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.house), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.house), label: 'Início'),
           BottomNavigationBarItem(
             icon: Icon(Icons.wallet),
-            label: 'Investiments',
+            label: 'Investimentos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.currency_exchange),
-            label: 'Transfers',
+            label: 'Transferências',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Settings',
+            label: 'Configurações',
           ),
         ],
       ),
