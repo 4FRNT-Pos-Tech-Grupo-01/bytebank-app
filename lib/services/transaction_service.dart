@@ -8,6 +8,10 @@ import 'package:path_provider/path_provider.dart';
 class TransactionService {
   DocumentSnapshot? _lastDocument;
 
+  resetPagination() {
+    _lastDocument = null;
+  }
+
   Future<List<TransactionModel>> fetchTransactions(
     int page, {
     TransactionType? type,
@@ -129,9 +133,5 @@ class TransactionService {
       debugPrint("Firestore delete failed: $e");
       rethrow;
     }
-  }
-
-  resetPagination() {
-    _lastDocument = null;
   }
 }

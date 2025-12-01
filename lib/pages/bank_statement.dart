@@ -123,8 +123,6 @@ class _BankStatementState extends State<BankStatement> {
   }
 }
 
-// -------------------------------------------------
-
 class TransactionTile extends StatelessWidget {
   final TransactionModel transaction;
   final VoidCallback onRefreshParent;
