@@ -120,11 +120,18 @@ class TransactionTile extends StatelessWidget {
   _deleteTransaction(BuildContext context) async {
     final service = TransactionService();
 
-    await service.deleteTransaction(transaction.id);
+    try {
+      await service.deleteTransaction(transaction.id);
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Transação deletada')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Transação deletada')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao deletar transação: $e')));
+      return;
+    }
   }
 
   @override

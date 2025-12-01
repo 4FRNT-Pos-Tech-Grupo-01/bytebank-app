@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:bytebank_app/constants/transfer.dart';
 import 'package:bytebank_app/models/transfer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class TransactionService {
@@ -119,9 +120,14 @@ class TransactionService {
   }
 
   Future<void> deleteTransaction(String transactionId) async {
-    await FirebaseFirestore.instance
-        .collection('transactions')
-        .doc(transactionId)
-        .delete();
+    try {
+      await FirebaseFirestore.instance
+          .collection('transactions')
+          .doc(transactionId)
+          .delete();
+    } catch (e) {
+      debugPrint("Firestore delete failed: $e");
+      rethrow;
+    }
   }
 }
