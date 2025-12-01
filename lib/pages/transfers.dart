@@ -9,10 +9,12 @@ import 'package:bytebank_app/services/transaction_service.dart';
 
 class Transfers extends StatefulWidget {
   final String? initialTransactionType;
+  final String? id;
   final TextEditingController? amountController;
 
   const Transfers({
     super.key,
+    this.id,
     this.initialTransactionType,
     this.amountController,
   });
@@ -28,12 +30,16 @@ class _TransfersState extends State<Transfers> {
   File? selectedFile;
   String? selectedFileName;
   final TransactionService _service = TransactionService();
+  String transactionTitle = 'Nova Transação';
 
   @override
   void initState() {
     super.initState();
     selectedTransactionType = widget.initialTransactionType;
     amountController = widget.amountController ?? TextEditingController();
+    transactionTitle = widget.id == null
+        ? transactionTitle
+        : 'Editar Transação';
   }
 
   Future<void> _pickAttachment() async {
@@ -51,7 +57,6 @@ class _TransfersState extends State<Transfers> {
               ? file.name
               : 'attachment_${DateTime.now().millisecondsSinceEpoch}';
         });
-        print('Arquivo selecionado: $selectedFileName');
       }
     } catch (e) {
       debugPrint('Erro ao selecionar arquivo: $e');
@@ -74,23 +79,30 @@ class _TransfersState extends State<Transfers> {
         ? 'transfer'
         : 'deposit';
 
-    await _service.createTransaction(
-      type: type,
-      amount: amount,
-      attachment: selectedFile,
-      attachmentName: selectedFileName,
-    );
+    try {
+      if (widget.id == null) {
+        await _service.createTransaction(
+          type: type,
+          amount: amount,
+          attachment: selectedFile,
+          attachmentName: selectedFileName,
+        );
+      } else {
+        await _service.updateTransaction(
+          id: widget.id!,
+          type: type,
+          amount: amount,
+          newAttachment: selectedFile,
+          attachmentName: selectedFileName,
+        );
+      }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Transação concluída com sucesso!')),
-    );
-
-    amountController.clear();
-    setState(() {
-      selectedTransactionType = null;
-      selectedFile = null;
-      selectedFileName = null;
-    });
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar: $e')));
+    }
   }
 
   @override
@@ -121,7 +133,7 @@ class _TransfersState extends State<Transfers> {
               child: Column(
                 children: [
                   Text(
-                    'Nova Transação',
+                    transactionTitle,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

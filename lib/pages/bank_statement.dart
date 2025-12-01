@@ -4,8 +4,6 @@ import 'package:bytebank_app/models/transfer.dart';
 import 'package:bytebank_app/pages/transfers.dart';
 import 'package:bytebank_app/services/transaction_service.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:async';
 
 class BankStatement extends StatefulWidget {
   const BankStatement({super.key});
@@ -22,9 +20,6 @@ class _BankStatementState extends State<BankStatement> {
   bool _isLoading = false;
   int _page = 1;
 
-  Timer? _refreshTimer;
-  StreamSubscription<QuerySnapshot>? _subscription;
-
   @override
   void initState() {
     super.initState();
@@ -37,43 +32,10 @@ class _BankStatementState extends State<BankStatement> {
         _fetchTransactions();
       }
     });
-
-    // Exemplo: timer que atualiza dados
-    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
-      if (!mounted) return; // importante
-      try {
-        final data = await _loadLatest(); // exemplo async
-        if (!mounted) return;
-        setState(() {
-          // atualiza estado com data
-        });
-      } catch (e) {
-        if (!mounted) return;
-        // tratar erro (mostrar SnackBar etc.)
-      }
-    });
-
-    // Exemplo: subscription a um stream (Firestore)
-    _subscription = FirebaseFirestore.instance
-        .collection('transactions')
-        .snapshots()
-        .listen((snapshot) {
-          if (!mounted) return;
-          setState(() {
-            // atualiza com snapshot
-          });
-        });
-  }
-
-  Future<Map<String, dynamic>> _loadLatest() async {
-    // ...carrega dados...
-    return {};
   }
 
   Future<void> _fetchTransactions() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     final newData = await _service.fetchTransactions(_page);
 
@@ -84,18 +46,20 @@ class _BankStatementState extends State<BankStatement> {
     });
   }
 
+  Future<void> _refreshTransactions() async {
+    setState(() {
+      transactions.clear();
+      _page = 1;
+    });
+
+    _service.resetPagination();
+    await _fetchTransactions();
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
-    _refreshTimer?.cancel();
-    _subscription?.cancel();
-
     super.dispose();
-  }
-
-  Future<dynamic> someAsyncCall() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return <String, dynamic>{}; // adjust return type/data as needed
   }
 
   @override
@@ -115,13 +79,17 @@ class _BankStatementState extends State<BankStatement> {
                 ),
                 const Spacer(),
                 InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const Transfers(),
                       ),
                     );
+
+                    if (result == true) {
+                      _refreshTransactions();
+                    }
                   },
                   child: const Icon(Icons.add, size: 32, color: Colors.green),
                 ),
@@ -141,7 +109,10 @@ class _BankStatementState extends State<BankStatement> {
                     );
                   }
 
-                  return TransactionTile(transaction: transactions[index]);
+                  return TransactionTile(
+                    transaction: transactions[index],
+                    onRefreshParent: _refreshTransactions,
+                  );
                 },
               ),
             ),
@@ -154,11 +125,34 @@ class _BankStatementState extends State<BankStatement> {
 
 class TransactionTile extends StatelessWidget {
   final TransactionModel transaction;
+  final VoidCallback onRefreshParent;
 
-  const TransactionTile({super.key, required this.transaction});
+  const TransactionTile({
+    super.key,
+    required this.transaction,
+    required this.onRefreshParent,
+  });
 
   String get transactionValueToDisplay {
     return 'R\$ ${transaction.value.toStringAsFixed(2)}';
+  }
+
+  _deleteTransaction(BuildContext context) async {
+    final service = TransactionService();
+
+    try {
+      await service.deleteTransaction(transaction.id);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Transação deletada')));
+
+      onRefreshParent();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao deletar transação: $e')));
+    }
   }
 
   @override
@@ -192,11 +186,12 @@ class TransactionTile extends StatelessWidget {
                 Row(
                   children: [
                     InkWell(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Transfers(
+                              id: transaction.id,
                               initialTransactionType: depositToDisplay,
                               amountController: TextEditingController(
                                 text: transaction.value.toString(),
@@ -204,6 +199,10 @@ class TransactionTile extends StatelessWidget {
                             ),
                           ),
                         );
+
+                        if (result == true) {
+                          onRefreshParent();
+                        }
                       },
                       child: const Icon(
                         Icons.edit,
@@ -231,9 +230,7 @@ class TransactionTile extends StatelessWidget {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    print(
-                                      'Transação a deletar: ${transaction.value}, ${transaction.date}, ${transaction.month}, ${transaction.type}',
-                                    );
+                                    _deleteTransaction(context);
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text('Deletar'),
