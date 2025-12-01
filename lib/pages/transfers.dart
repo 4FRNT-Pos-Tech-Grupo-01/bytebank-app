@@ -51,7 +51,6 @@ class _TransfersState extends State<Transfers> {
               ? file.name
               : 'attachment_${DateTime.now().millisecondsSinceEpoch}';
         });
-        print('Arquivo selecionado: $selectedFileName');
       }
     } catch (e) {
       debugPrint('Erro ao selecionar arquivo: $e');

@@ -44,8 +44,6 @@ class TransactionService {
     return snapshot.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>;
 
-      print('Fetched transaction data: $data');
-
       DateTime? date = data['date'] != null
           ? (data['date'] as Timestamp).toDate()
           : null;

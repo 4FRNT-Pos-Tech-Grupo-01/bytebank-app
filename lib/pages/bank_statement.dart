@@ -197,9 +197,6 @@ class TransactionTile extends StatelessWidget {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    print(
-                                      'Transação a deletar: ${transaction.value}, ${transaction.date}, ${transaction.month}, ${transaction.type}',
-                                    );
                                     _deleteTransaction(context);
                                     Navigator.of(context).pop();
                                   },
