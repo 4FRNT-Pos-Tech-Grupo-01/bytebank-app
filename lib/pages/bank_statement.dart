@@ -35,9 +35,7 @@ class _BankStatementState extends State<BankStatement> {
   }
 
   Future<void> _fetchTransactions() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     final newData = await _service.fetchTransactions(_page);
 
@@ -46,6 +44,16 @@ class _BankStatementState extends State<BankStatement> {
       _page++;
       _isLoading = false;
     });
+  }
+
+  Future<void> _refreshTransactions() async {
+    setState(() {
+      transactions.clear();
+      _page = 1;
+    });
+
+    _service.resetPagination();
+    await _fetchTransactions();
   }
 
   @override
@@ -71,13 +79,17 @@ class _BankStatementState extends State<BankStatement> {
                 ),
                 const Spacer(),
                 InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const Transfers(),
                       ),
                     );
+
+                    if (result == true) {
+                      _refreshTransactions();
+                    }
                   },
                   child: const Icon(Icons.add, size: 32, color: Colors.green),
                 ),
@@ -97,7 +109,10 @@ class _BankStatementState extends State<BankStatement> {
                     );
                   }
 
-                  return TransactionTile(transaction: transactions[index]);
+                  return TransactionTile(
+                    transaction: transactions[index],
+                    onRefreshParent: _refreshTransactions,
+                  );
                 },
               ),
             ),
@@ -108,10 +123,17 @@ class _BankStatementState extends State<BankStatement> {
   }
 }
 
+// -------------------------------------------------
+
 class TransactionTile extends StatelessWidget {
   final TransactionModel transaction;
+  final VoidCallback onRefreshParent;
 
-  const TransactionTile({super.key, required this.transaction});
+  const TransactionTile({
+    super.key,
+    required this.transaction,
+    required this.onRefreshParent,
+  });
 
   String get transactionValueToDisplay {
     return 'R\$ ${transaction.value.toStringAsFixed(2)}';
@@ -126,11 +148,12 @@ class TransactionTile extends StatelessWidget {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Transação deletada')));
+
+      onRefreshParent();
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erro ao deletar transação: $e')));
-      return;
     }
   }
 
@@ -165,8 +188,8 @@ class TransactionTile extends StatelessWidget {
                 Row(
                   children: [
                     InkWell(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Transfers(
@@ -178,6 +201,10 @@ class TransactionTile extends StatelessWidget {
                             ),
                           ),
                         );
+
+                        if (result == true) {
+                          onRefreshParent();
+                        }
                       },
                       child: const Icon(
                         Icons.edit,
