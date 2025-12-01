@@ -27,27 +27,9 @@ class _RegisterState extends State<Register> {
         password.isEmpty ||
         fullName.isEmpty ||
         userName.isEmpty) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, preencha todos os campos')),
-      );
-      return;
-    }
-
-    // Validação: email válido
-    final emailRegex = RegExp(r"^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$");
-    if (!emailRegex.hasMatch(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, insira um email válido')),
-      );
-      return;
-    }
-
-    // Validação: username não pode conter espaços
-    if (userName.contains(RegExp(r'\s'))) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nome de usuário não pode conter espaços'),
-        ),
       );
       return;
     }
@@ -55,16 +37,13 @@ class _RegisterState extends State<Register> {
     setState(() => _loading = true);
 
     try {
-      // Cria o usuário no Firebase Auth
       final UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      // Pega o UID (pode vir de userCredential.user ou do FirebaseAuth)
       final uid =
           userCredential.user?.uid ?? FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) throw Exception('Erro ao obter UID do usuário');
+      if (uid == null) throw Exception('Erro ao obter UID');
 
-      // Grava dados adicionais no Firestore na coleção 'users' com doc id = uid
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'email': email,
         'fullName': fullName,
@@ -76,6 +55,7 @@ class _RegisterState extends State<Register> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Conta criada com sucesso')));
+      if (!mounted) return;
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       final message = e.message ?? 'Erro ao criar a conta';
@@ -89,7 +69,8 @@ class _RegisterState extends State<Register> {
         context,
       ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (!mounted) return;
+      setState(() => _loading = false);
     }
   }
 
@@ -99,6 +80,7 @@ class _RegisterState extends State<Register> {
     _passwordController.dispose();
     _fullNameController.dispose();
     _userNameController.dispose();
+    // se tiver listeners: _controller.removeListener(...)
     super.dispose();
   }
 

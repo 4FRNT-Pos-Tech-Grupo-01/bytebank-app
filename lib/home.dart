@@ -1,12 +1,12 @@
-import 'package:bytebank_app/firebase_auth.dart';
+import 'package:bytebank_app/firebase_auth.dart' as auth_service;
 import 'package:bytebank_app/pages/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bytebank_app/pages/home.dart';
 import 'package:bytebank_app/pages/investiments.dart';
-import 'package:bytebank_app/pages/others_services.dart';
 import 'package:bytebank_app/pages/bank_statement.dart';
+import 'package:bytebank_app/pages/account_services.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -29,7 +29,7 @@ class _HomePageState extends State<MyHomePage> {
     final password = _passwordController.text;
 
     try {
-      await Auth().signInWithEmailAndPassword(
+      await auth_service.Auth().signInWithEmailAndPassword(
         email: username,
         password: password,
       );
@@ -56,7 +56,8 @@ class _HomePageState extends State<MyHomePage> {
   // Logout function
   Future<void> _logout() async {
     try {
-      await Auth().signOut(); // ou FirebaseAuth.instance.signOut();
+      await auth_service.Auth()
+          .signOut(); // ou FirebaseAuth.instance.signOut();
       if (!mounted) return;
       setState(() {
         _isLoggedIn = false;
@@ -137,7 +138,7 @@ class _HomePageState extends State<MyHomePage> {
           ElevatedButton.icon(
             onPressed: _login,
             icon: const Icon(Icons.login),
-            label: Text('Login'),
+            label: Text('Entrar'),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
               backgroundColor: Color.fromARGB(195, 41, 202, 27),
@@ -182,8 +183,90 @@ class _HomePageState extends State<MyHomePage> {
             alignment: Alignment.center,
             onPressed: _logout,
           ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            color: const Color.fromARGB(195, 41, 202, 27),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AccountServicesPage()),
+              );
+            },
+          ),
         ],
       ),
+
+      // drawer/menu principal que abre a tela de serviços
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              UserAccountsDrawerHeader(
+                accountName: Text(
+                  auth_service.Auth().currentUser?.displayName ?? 'Usuário',
+                ),
+                accountEmail: Text(
+                  auth_service.Auth().currentUser?.email ?? '',
+                ),
+                currentAccountPicture: const CircleAvatar(
+                  child: Icon(Icons.person),
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Início'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => selectedIndex = 0);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.wallet),
+                title: const Text('Investimentos'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => selectedIndex = 1);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.currency_exchange),
+                title: const Text('Transferências'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => selectedIndex = 2);
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.build),
+                title: const Text('Serviços da conta'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AccountServicesPage(),
+                    ),
+                  );
+                },
+              ),
+              const Spacer(),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Sair'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _logout();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: (newIndex) {
@@ -214,7 +297,7 @@ class _HomePageState extends State<MyHomePage> {
         0 => Home(),
         1 => Investiments(),
         2 => BankStatement(),
-        3 => OthersServices(),
+        3 => AccountServicesPage(),
         _ => Center(child: Text("Page not found")),
       },
     );

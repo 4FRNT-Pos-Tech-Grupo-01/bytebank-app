@@ -4,6 +4,8 @@ import 'package:bytebank_app/models/transfer.dart';
 import 'package:bytebank_app/pages/transfers.dart';
 import 'package:bytebank_app/services/transaction_service.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 
 class BankStatement extends StatefulWidget {
   const BankStatement({super.key});
@@ -20,6 +22,9 @@ class _BankStatementState extends State<BankStatement> {
   bool _isLoading = false;
   int _page = 1;
 
+  Timer? _refreshTimer;
+  StreamSubscription<QuerySnapshot>? _subscription;
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +37,37 @@ class _BankStatementState extends State<BankStatement> {
         _fetchTransactions();
       }
     });
+
+    // Exemplo: timer que atualiza dados
+    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (!mounted) return; // importante
+      try {
+        final data = await _loadLatest(); // exemplo async
+        if (!mounted) return;
+        setState(() {
+          // atualiza estado com data
+        });
+      } catch (e) {
+        if (!mounted) return;
+        // tratar erro (mostrar SnackBar etc.)
+      }
+    });
+
+    // Exemplo: subscription a um stream (Firestore)
+    _subscription = FirebaseFirestore.instance
+        .collection('transactions')
+        .snapshots()
+        .listen((snapshot) {
+          if (!mounted) return;
+          setState(() {
+            // atualiza com snapshot
+          });
+        });
+  }
+
+  Future<Map<String, dynamic>> _loadLatest() async {
+    // ...carrega dados...
+    return {};
   }
 
   Future<void> _fetchTransactions() async {
@@ -51,7 +87,15 @@ class _BankStatementState extends State<BankStatement> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _refreshTimer?.cancel();
+    _subscription?.cancel();
+
     super.dispose();
+  }
+
+  Future<dynamic> someAsyncCall() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return <String, dynamic>{}; // adjust return type/data as needed
   }
 
   @override

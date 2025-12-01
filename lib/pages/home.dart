@@ -301,7 +301,7 @@ class _Finantials extends State<Home> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Image.asset(
-                    '../assets/images/dashboard-image.png',
+                    'assets/images/dashboard-image.png',
                     height: 240,
                     fit: BoxFit.contain,
                   ),
