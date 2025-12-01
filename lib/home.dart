@@ -95,12 +95,12 @@ class _HomePageState extends State<MyHomePage> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Logged out successfully')));
+      ).showSnackBar(const SnackBar(content: Text('Sucesso ao sair')));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Error logging out')));
+      ).showSnackBar(const SnackBar(content: Text('Erro ao sair')));
     }
   }
 

@@ -41,7 +41,7 @@ class _MyAccountState extends State<MyAccount> {
         decoration: BoxDecoration(
           color: TransferScreenColors.containerBackground,
           image: const DecorationImage(
-            image: AssetImage('assets/images/perfil.png'),
+            image: AssetImage('assets/images/account-background.png'),
             fit: BoxFit.fitHeight,
           ),
         ),
@@ -57,7 +57,7 @@ class _MyAccountState extends State<MyAccount> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: TransferScreenColors.titleFont,
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                   const SizedBox(height: 32),
