@@ -170,6 +170,7 @@ class TransactionTile extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => Transfers(
+                              id: transaction.id,
                               initialTransactionType: depositToDisplay,
                               amountController: TextEditingController(
                                 text: transaction.value.toString(),
