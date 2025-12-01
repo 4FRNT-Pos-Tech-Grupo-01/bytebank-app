@@ -130,4 +130,8 @@ class TransactionService {
       rethrow;
     }
   }
+
+  resetPagination() {
+    _lastDocument = null;
+  }
 }
