@@ -98,9 +98,9 @@ class _BankStatementState extends State<BankStatement> {
                 children: [
                   const Text(
                     'Filtrar Transações',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: TransactionType.values.map((type) {
@@ -119,7 +119,7 @@ class _BankStatementState extends State<BankStatement> {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   Row(
                     children: [
                       Expanded(
@@ -131,7 +131,7 @@ class _BankStatementState extends State<BankStatement> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: TextField(
                           controller: maxController,
