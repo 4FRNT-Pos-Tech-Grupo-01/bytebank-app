@@ -176,20 +176,20 @@ class _HomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          // const SizedBox(height: 24),
-          // TextButton(
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (_) => const Register()),
-          //     );
-          //   },
-          //   style: TextButton.styleFrom(
-          //     foregroundColor: const Color.fromARGB(195, 41, 202, 27),
-          //     minimumSize: const Size(double.infinity, 48),
-          //   ),
-          //   child: const Text('Registre-se', style: TextStyle(fontSize: 16)),
-          // ),
+          const SizedBox(height: 24),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const Register()),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: const Color.fromARGB(195, 41, 202, 27),
+              minimumSize: const Size(double.infinity, 48),
+            ),
+            child: const Text('Registre-se', style: TextStyle(fontSize: 16)),
+          ),
         ],
       ),
     );
@@ -205,12 +205,18 @@ class _HomePageState extends State<MyHomePage> {
           IconButton(
             key: _menuKey,
             onPressed: () async {
-              final RenderBox renderBox = _menuKey.currentContext!.findRenderObject() as RenderBox;
+              final RenderBox renderBox =
+                  _menuKey.currentContext!.findRenderObject() as RenderBox;
               final Offset offset = renderBox.localToGlobal(Offset.zero);
               final Size size = renderBox.size;
               final result = await showMenu<String>(
                 context: context,
-                position: RelativeRect.fromLTRB(offset.dx, offset.dy + size.height, offset.dx + size.width, offset.dy + size.height + 200),
+                position: RelativeRect.fromLTRB(
+                  offset.dx,
+                  offset.dy + size.height,
+                  offset.dx + size.width,
+                  offset.dy + size.height + 200,
+                ),
                 items: [
                   PopupMenuItem<String>(
                     value: 'close',
@@ -229,7 +235,9 @@ class _HomePageState extends State<MyHomePage> {
                     child: Center(
                       child: Text(
                         'Minha Conta',
-                        style: TextStyle(color: _showMyAccount ? Colors.green : Colors.white),
+                        style: TextStyle(
+                          color: _showMyAccount ? Colors.green : Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -238,7 +246,9 @@ class _HomePageState extends State<MyHomePage> {
                     child: Center(
                       child: Text(
                         'Configurações',
-                        style: TextStyle(color: _showSettings ? Colors.green : Colors.white),
+                        style: TextStyle(
+                          color: _showSettings ? Colors.green : Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -278,16 +288,22 @@ class _HomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          // IconButton(
-          //   icon: Icon(Icons.settings),
-          //   color: const Color.fromARGB(195, 41, 202, 27),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (_) => const AccountServicesPage()),
-          //     );
-          //   },
-          // ),
+          IconButton(
+            icon: Icon(Icons.login),
+            color: const Color.fromARGB(195, 41, 202, 27),
+            alignment: Alignment.center,
+            onPressed: _logout,
+          ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            color: const Color.fromARGB(195, 41, 202, 27),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AccountServicesPage()),
+              );
+            },
+          ),
         ],
       ),
 
@@ -384,19 +400,28 @@ class _HomePageState extends State<MyHomePage> {
             icon: Icon(Icons.currency_exchange),
             label: 'Transferências',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Configurações',
+          ),
         ],
       ),
       body: _showMyAccount
-          ? MyAccount(onBack: () => setState(() { _showMyAccount = false; _showSettings = false; }))
+          ? MyAccount(
+              onBack: () => setState(() {
+                _showMyAccount = false;
+                _showSettings = false;
+              }),
+            )
           : _showSettings
-              ? AccountServicesPage()
-              : switch (selectedIndex) {
-                  0 => Home(),
-                  1 => Investiments(),
-                  2 => BankStatement(),
-                  3 => AccountServicesPage(),
-                  _ => Center(child: Text("Page not found")),
-                },
+          ? AccountServicesPage()
+          : switch (selectedIndex) {
+              0 => Home(),
+              1 => Investiments(),
+              2 => BankStatement(),
+              3 => AccountServicesPage(),
+              _ => Center(child: Text("Page not found")),
+            },
     );
   }
 }
