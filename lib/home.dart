@@ -2,10 +2,12 @@ import 'package:bytebank_app/firebase_auth.dart' as auth_service;
 import 'package:bytebank_app/pages/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:bytebank_app/app_colors.dart';
 
 import 'package:bytebank_app/pages/home.dart';
 import 'package:bytebank_app/pages/investiments.dart';
 import 'package:bytebank_app/pages/bank_statement.dart';
+import 'package:bytebank_app/pages/my_account.dart';
 import 'package:bytebank_app/pages/account_services.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -18,6 +20,9 @@ class MyHomePage extends StatefulWidget {
 class _HomePageState extends State<MyHomePage> {
   bool _isLoggedIn = false;
   var selectedIndex = 0;
+  bool _showMyAccount = false;
+  bool _showSettings = false;
+  final GlobalKey _menuKey = GlobalKey();
 
   // Controllers for login form
   final TextEditingController _usernameController = TextEditingController();
@@ -66,12 +71,32 @@ class _HomePageState extends State<MyHomePage> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Logged out successfully')));
+      ).showSnackBar(const SnackBar(content: Text('Sucesso ao sair')));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Error logging out')));
+      ).showSnackBar(const SnackBar(content: Text('Erro ao sair')));
+    }
+  }
+
+  void _onMenuSelected(String value) {
+    switch (value) {
+      case 'my_account':
+        setState(() {
+          _showMyAccount = true;
+          _showSettings = false;
+        });
+        break;
+      case 'settings':
+        setState(() {
+          _showSettings = true;
+          _showMyAccount = false;
+        });
+        break;
+      case 'logout':
+        _logout();
+        break;
     }
   }
 
@@ -178,6 +203,92 @@ class _HomePageState extends State<MyHomePage> {
         title: Image.asset('assets/images/logo.png', height: 24),
         actions: [
           IconButton(
+            key: _menuKey,
+            onPressed: () async {
+              final RenderBox renderBox =
+                  _menuKey.currentContext!.findRenderObject() as RenderBox;
+              final Offset offset = renderBox.localToGlobal(Offset.zero);
+              final Size size = renderBox.size;
+              final result = await showMenu<String>(
+                context: context,
+                position: RelativeRect.fromLTRB(
+                  offset.dx,
+                  offset.dy + size.height,
+                  offset.dx + size.width,
+                  offset.dy + size.height + 200,
+                ),
+                items: [
+                  PopupMenuItem<String>(
+                    value: 'close',
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'my_account',
+                    child: Center(
+                      child: Text(
+                        'Minha Conta',
+                        style: TextStyle(
+                          color: _showMyAccount ? Colors.green : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'settings',
+                    child: Center(
+                      child: Text(
+                        'Configurações',
+                        style: TextStyle(
+                          color: _showSettings ? Colors.green : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    enabled: false,
+                    child: Divider(color: Colors.white),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'logout',
+                    child: Center(
+                      child: Text(
+                        'Sair',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+                color: Colors.black,
+              );
+              if (result != null && result != 'close') {
+                _onMenuSelected(result);
+              }
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: TransferScreenColors.buttonOrange,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.person,
+                color: TransferScreenColors.buttonOrange,
+                size: 20,
+              ),
+            ),
+          ),
+          IconButton(
             icon: Icon(Icons.login),
             color: const Color.fromARGB(195, 41, 202, 27),
             alignment: Alignment.center,
@@ -272,6 +383,8 @@ class _HomePageState extends State<MyHomePage> {
         onTap: (newIndex) {
           setState(() {
             selectedIndex = newIndex;
+            _showMyAccount = false;
+            _showSettings = false;
           });
         },
         backgroundColor: const Color.fromARGB(255, 3, 3, 3),
@@ -293,13 +406,22 @@ class _HomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: switch (selectedIndex) {
-        0 => Home(),
-        1 => Investiments(),
-        2 => BankStatement(),
-        3 => AccountServicesPage(),
-        _ => Center(child: Text("Page not found")),
-      },
+      body: _showMyAccount
+          ? MyAccount(
+              onBack: () => setState(() {
+                _showMyAccount = false;
+                _showSettings = false;
+              }),
+            )
+          : _showSettings
+          ? AccountServicesPage()
+          : switch (selectedIndex) {
+              0 => Home(),
+              1 => Investiments(),
+              2 => BankStatement(),
+              3 => AccountServicesPage(),
+              _ => Center(child: Text("Page not found")),
+            },
     );
   }
 }
