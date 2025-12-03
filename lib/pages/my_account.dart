@@ -128,6 +128,7 @@ class _MyAccountState extends State<MyAccount> {
                   ElevatedButton(
                     onPressed: _saveProfile,
                     style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
