@@ -12,6 +12,9 @@ class TransactionService {
     _lastDocument = null;
   }
 
+  //TODO: Add indexes to firebase and start using this method instead of fetchTransactionsInMemory
+  // The query requires an index. You can create it here:
+  // https://console.firebase.google.com/v1/r/project/bytebank-app-90ef0/firestore/indexes?create_composite=Cldwcm9qZWN0cy9ieXRlYmFuay1hcHAtOTBlZjAvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3RyYW5zYWN0aW9ucy9pbmRleGVzL18QARoICgR0eXBlEAEaCgoGYW1vdW50EAEaDAoIX19uYW1lX18QAQ
   Future<List<TransactionModel>> fetchTransactions(
     int page, {
     TransactionType? type,
@@ -68,6 +71,47 @@ class TransactionService {
         value: (data['amount'] as num).toDouble(),
         type: TransactionType.values.firstWhere((e) => e.name == data['type']),
       );
+    }).toList();
+  }
+
+  Future<List<TransactionModel>> fetchTransactionsInMemory(
+    int page, {
+    TransactionType? type,
+    double? minValue,
+    double? maxValue,
+  }) async {
+    Query query = FirebaseFirestore.instance
+        .collection('transactions')
+        .orderBy('date', descending: true)
+        .limit(250);
+
+    final snapshot = await query.get();
+
+    final all = snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+
+      DateTime? date = data['date'] != null
+          ? (data['date'] as Timestamp).toDate()
+          : null;
+
+      return TransactionModel(
+        id: doc.id,
+        month: date?.month.toString() ?? 'unknown',
+        date: date != null
+            ? '${date.day.toString().padLeft(2, '0')}/'
+                  '${date.month.toString().padLeft(2, '0')}/'
+                  '${date.year}'
+            : 'unknown',
+        value: (data['amount'] as num).toDouble(),
+        type: TransactionType.values.firstWhere((e) => e.name == data['type']),
+      );
+    }).toList();
+
+    return all.where((tx) {
+      if (type != null && tx.type != type) return false;
+      if (minValue != null && tx.value < minValue) return false;
+      if (maxValue != null && tx.value > maxValue) return false;
+      return true;
     }).toList();
   }
 

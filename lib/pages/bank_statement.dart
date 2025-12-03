@@ -20,6 +20,10 @@ class _BankStatementState extends State<BankStatement> {
   bool _isLoading = false;
   int _page = 1;
 
+  TransactionType? _filterType;
+  double? _minValue;
+  double? _maxValue;
+
   @override
   void initState() {
     super.initState();
@@ -35,12 +39,25 @@ class _BankStatementState extends State<BankStatement> {
   }
 
   Future<void> _fetchTransactions() async {
+    if (_isLoading) return;
+
     setState(() => _isLoading = true);
 
-    final newData = await _service.fetchTransactions(_page);
+    final newData = await _service.fetchTransactionsInMemory(
+      _page,
+      type: _filterType,
+      minValue: _minValue,
+      maxValue: _maxValue,
+    );
+
+    // TODO: Remove once we use indexed fetching instead of in-memory
+    final existingIds = transactions.map((t) => t.id).toSet();
+    final uniqueNewData = newData
+        .where((t) => !existingIds.contains(t.id))
+        .toList();
 
     setState(() {
-      transactions.addAll(newData);
+      transactions.addAll(uniqueNewData);
       _page++;
       _isLoading = false;
     });
@@ -54,6 +71,125 @@ class _BankStatementState extends State<BankStatement> {
 
     _service.resetPagination();
     await _fetchTransactions();
+  }
+
+  void _openFilterSheet() {
+    final minController = TextEditingController(
+      text: _minValue?.toString() ?? '',
+    );
+    final maxController = TextEditingController(
+      text: _maxValue?.toString() ?? '',
+    );
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        TransactionType? tempType = _filterType;
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Filtrar Transações',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: TransactionType.values.map((type) {
+                      return ChoiceChip(
+                        label: Text(
+                          type == TransactionType.deposit
+                              ? depositToDisplay
+                              : transferToDisplay,
+                        ),
+                        selected: tempType == type,
+                        onSelected: (selected) {
+                          setModalState(() {
+                            tempType = selected ? type : null;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: minController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Valor mínimo',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: maxController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Valor máximo',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _filterType = null;
+                              _minValue = null;
+                              _maxValue = null;
+                            });
+                            _refreshTransactions();
+                          },
+                          child: const Text('Limpar'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+
+                            setState(() {
+                              _filterType = tempType;
+                              _minValue = double.tryParse(
+                                minController.text.trim(),
+                              );
+                              _maxValue = double.tryParse(
+                                maxController.text.trim(),
+                              );
+                            });
+
+                            _refreshTransactions();
+                          },
+                          child: const Text('Aplicar'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -76,6 +212,15 @@ class _BankStatementState extends State<BankStatement> {
                 const Text(
                   'Extrato',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 16),
+                InkWell(
+                  onTap: _openFilterSheet,
+                  child: const Icon(
+                    Icons.filter_alt,
+                    size: 24,
+                    color: Colors.grey,
+                  ),
                 ),
                 const Spacer(),
                 InkWell(
