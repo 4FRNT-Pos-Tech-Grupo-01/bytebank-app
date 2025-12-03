@@ -50,7 +50,7 @@ class _BankStatementState extends State<BankStatement> {
       maxValue: _maxValue,
     );
 
-    // TODO: Remove once we use indexed fetching instead of in-memory
+    // TODO: Remove once we use indexed fetching instead of in-memory and use only the newData variable
     final existingIds = transactions.map((t) => t.id).toSet();
     final uniqueNewData = newData
         .where((t) => !existingIds.contains(t.id))
