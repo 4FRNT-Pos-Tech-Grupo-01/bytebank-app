@@ -177,19 +177,6 @@ class _HomePageState extends State<MyHomePage> {
             ),
           ),
           const SizedBox(height: 24),
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const Register()),
-              );
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: const Color.fromARGB(195, 41, 202, 27),
-              minimumSize: const Size(double.infinity, 48),
-            ),
-            child: const Text('Registre-se', style: TextStyle(fontSize: 16)),
-          ),
         ],
       ),
     );
@@ -288,22 +275,6 @@ class _HomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.login),
-            color: const Color.fromARGB(195, 41, 202, 27),
-            alignment: Alignment.center,
-            onPressed: _logout,
-          ),
-          IconButton(
-            icon: Icon(Icons.settings),
-            color: const Color.fromARGB(195, 41, 202, 27),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AccountServicesPage()),
-              );
-            },
-          ),
         ],
       ),
 
@@ -399,10 +370,6 @@ class _HomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.currency_exchange),
             label: 'Transferências',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Configurações',
           ),
         ],
       ),
