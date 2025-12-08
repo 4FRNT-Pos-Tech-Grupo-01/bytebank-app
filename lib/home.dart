@@ -183,16 +183,6 @@ class _HomePageState extends State<MyHomePage> {
             alignment: Alignment.center,
             onPressed: _logout,
           ),
-          IconButton(
-            icon: Icon(Icons.settings),
-            color: const Color.fromARGB(195, 41, 202, 27),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AccountServicesPage()),
-              );
-            },
-          ),
         ],
       ),
 
