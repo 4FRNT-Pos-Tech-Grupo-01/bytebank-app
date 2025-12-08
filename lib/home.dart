@@ -217,17 +217,17 @@ class _HomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  PopupMenuItem<String>(
-                    value: 'my_account',
-                    child: Center(
-                      child: Text(
-                        'Minha Conta',
-                        style: TextStyle(
-                          color: _showMyAccount ? Colors.green : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // PopupMenuItem<String>(
+                  //   value: 'my_account',
+                  //   child: Center(
+                  //     child: Text(
+                  //       'Minha Conta',
+                  //       style: TextStyle(
+                  //         color: _showMyAccount ? Colors.green : Colors.white,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   PopupMenuItem<String>(
                     value: 'settings',
                     child: Center(
