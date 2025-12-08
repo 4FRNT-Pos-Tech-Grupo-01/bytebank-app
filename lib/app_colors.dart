@@ -10,4 +10,9 @@ class TransferScreenColors {
   static const Color buttonOrange = Color(0xFFFF5031);
   static const Color statementBackground = Color(0xFFF4F4F4);
   static const Color statementGreen = Color(0xFF47A138); 
+
+  static const Color investimentBlue = Color(0xFF2567F9);
+  static const Color investimentPurple = Color(0xFF8F3CFF);
+  static const Color investimentPink = Color(0xFFFF3C82);
+  static const Color investimentOrange = Color(0xFFF1823D);
 }
