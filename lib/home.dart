@@ -177,6 +177,19 @@ class _HomePageState extends State<MyHomePage> {
             ),
           ),
           const SizedBox(height: 24),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const Register()),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: const Color.fromARGB(195, 41, 202, 27),
+              minimumSize: const Size(double.infinity, 48),
+            ),
+            child: const Text('Registre-se', style: TextStyle(fontSize: 16)),
+          ),
         ],
       ),
     );
