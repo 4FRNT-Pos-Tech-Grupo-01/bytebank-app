@@ -4,6 +4,7 @@ import 'package:bytebank_app/models/transfer.dart';
 import 'package:bytebank_app/pages/transfers.dart';
 import 'package:bytebank_app/services/transaction_service.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BankStatement extends StatefulWidget {
   const BankStatement({super.key});
@@ -39,11 +40,16 @@ class _BankStatementState extends State<BankStatement> {
   }
 
   Future<void> _fetchTransactions() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return; // usuário não logado
+    final userId = user.uid;
+
     if (_isLoading) return;
 
     setState(() => _isLoading = true);
 
     final newData = await _service.fetchTransactionsInMemory(
+      userId,
       _page,
       type: _filterType,
       minValue: _minValue,

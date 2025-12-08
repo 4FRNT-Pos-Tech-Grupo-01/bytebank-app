@@ -12,10 +12,8 @@ class TransactionService {
     _lastDocument = null;
   }
 
-  //TODO: Add indexes to firebase and start using this method instead of fetchTransactionsInMemory
-  // The query requires an index. You can create it here:
-  // https://console.firebase.google.com/v1/r/project/bytebank-app-90ef0/firestore/indexes?create_composite=Cldwcm9qZWN0cy9ieXRlYmFuay1hcHAtOTBlZjAvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3RyYW5zYWN0aW9ucy9pbmRleGVzL18QARoICgR0eXBlEAEaCgoGYW1vdW50EAEaDAoIX19uYW1lX18QAQ
   Future<List<TransactionModel>> fetchTransactions(
+    String userId,
     int page, {
     TransactionType? type,
     double? minValue,
@@ -23,6 +21,7 @@ class TransactionService {
   }) async {
     Query query = FirebaseFirestore.instance
         .collection('transactions')
+        .where('userId', isEqualTo: userId)
         .orderBy('date', descending: true)
         .limit(10);
 
@@ -75,6 +74,7 @@ class TransactionService {
   }
 
   Future<List<TransactionModel>> fetchTransactionsInMemory(
+    String userId,
     int page, {
     TransactionType? type,
     double? minValue,
@@ -82,6 +82,7 @@ class TransactionService {
   }) async {
     Query query = FirebaseFirestore.instance
         .collection('transactions')
+        .where('userId', isEqualTo: userId)
         .orderBy('date', descending: true)
         .limit(250);
 
@@ -130,6 +131,7 @@ class TransactionService {
   }
 
   Future<void> createTransaction({
+    required String userId,
     required String type,
     required double amount,
     File? attachment,
@@ -140,6 +142,7 @@ class TransactionService {
         : null;
 
     await FirebaseFirestore.instance.collection('transactions').add({
+      'userId': userId,
       'type': type,
       'amount': amount,
       'date': FieldValue.serverTimestamp(),
