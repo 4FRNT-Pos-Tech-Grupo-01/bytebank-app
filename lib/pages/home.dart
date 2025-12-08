@@ -58,9 +58,20 @@ class _Finantials extends State<Home> {
   }
 
   Future<double> fetchBalance() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Lança exceção se não houver usuário logado
+      throw Exception("Nenhum usuário logado");
+    }
+
+    final uid = user.uid;
+
+    // Buscar apenas transações do usuário logado
     final snapshot = await FirebaseFirestore.instance
         .collection('transactions')
+        .where('userId', isEqualTo: uid)
         .get();
+
     return calculateBalance(snapshot);
   }
 
