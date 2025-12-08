@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:bytebank_app/constants/transfer.dart';
 import 'package:bytebank_app/app_colors.dart';
 import 'package:bytebank_app/services/transaction_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Transfers extends StatefulWidget {
   final String? initialTransactionType;
@@ -67,6 +68,14 @@ class _TransfersState extends State<Transfers> {
   }
 
   Future<void> handleTransaction() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Usuário não logado.')));
+      return;
+    }
+    final userId = user.uid;
     if (!_formKey.currentState!.validate()) return;
 
     final amountText = amountController.text.replaceAll(',', '.').trim();
@@ -82,6 +91,7 @@ class _TransfersState extends State<Transfers> {
     try {
       if (widget.id == null) {
         await _service.createTransaction(
+          userId: userId,
           type: type,
           amount: amount,
           attachment: selectedFile,
