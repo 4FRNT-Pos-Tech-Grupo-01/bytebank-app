@@ -187,95 +187,15 @@ class _HomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Image.asset('assets/images/logo.png', height: 24),
-        actions: [
-          IconButton(
-            key: _menuKey,
-            onPressed: () async {
-              final RenderBox renderBox =
-                  _menuKey.currentContext!.findRenderObject() as RenderBox;
-              final Offset offset = renderBox.localToGlobal(Offset.zero);
-              final Size size = renderBox.size;
-              final result = await showMenu<String>(
-                context: context,
-                position: RelativeRect.fromLTRB(
-                  offset.dx,
-                  offset.dy + size.height,
-                  offset.dx + size.width,
-                  offset.dy + size.height + 200,
-                ),
-                items: [
-                  PopupMenuItem<String>(
-                    value: 'close',
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // PopupMenuItem<String>(
-                  //   value: 'my_account',
-                  //   child: Center(
-                  //     child: Text(
-                  //       'Minha Conta',
-                  //       style: TextStyle(
-                  //         color: _showMyAccount ? Colors.green : Colors.white,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  PopupMenuItem<String>(
-                    value: 'settings',
-                    child: Center(
-                      child: Text(
-                        'Configurações',
-                        style: TextStyle(
-                          color: _showSettings ? Colors.green : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const PopupMenuItem<String>(
-                    enabled: false,
-                    child: Divider(color: Colors.white),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'logout',
-                    child: Center(
-                      child: Text(
-                        'Sair',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-                color: Colors.black,
-              );
-              if (result != null && result != 'close') {
-                _onMenuSelected(result);
-              }
-            },
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: TransferScreenColors.buttonOrange,
-                  width: 2,
-                ),
-              ),
-              child: Icon(
-                Icons.person,
-                color: TransferScreenColors.buttonOrange,
-                size: 20,
-              ),
-            ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            color: const Color.fromARGB(195, 41, 202, 27), // nova cor do menu
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
-        ],
+        ),
+        title: Image.asset('assets/images/logo.png', height: 24),
+        actions: [],
       ),
 
       // drawer/menu principal que abre a tela de serviços

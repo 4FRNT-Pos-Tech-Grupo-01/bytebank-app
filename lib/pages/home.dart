@@ -275,6 +275,7 @@ class _Finantials extends State<Home> {
                     }
 
                     final balance = snapshot.data!;
+
                     final formattedBalance =
                         "R\$ ${balance.toStringAsFixed(2)}";
 
